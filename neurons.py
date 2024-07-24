@@ -2,23 +2,39 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Read the CSV file
-data = pd.read_csv('neuronal_spikes.csv')
+# CSV-DataFrame
+df = pd.read_csv('neuronal_spikes.csv')
 
-# Extract time and neuronal activity data
-time = data['time'].values
-neuronal_activity = data.drop(columns=['time']).values
+# The activity is the sum of all spikes.
+activity = df.drop(columns=['time']).sum(axis=1)
+spikes = df.drop(columns=['time']).values
 
-# Plotting the activity of neurons over time
-plt.figure(figsize=(10, 6))
+A = activity.values
+time = df['time'].values
 
-# Iterate over each neuron and plot its activity
-for neuron_index in range(neuronal_activity.shape[1]):
-    spikes = np.where(neuronal_activity[:, neuron_index] == 1)[0]
-    plt.scatter(spikes, np.full(spikes.shape, neuron_index), label=f'Neuron {neuron_index + 1}', s=10)
+print("Activity:", A)
+print("Time:", time)
+
+plt.figure(figsize=(12, 10))
+
+# First subplot: Total activity over time
+plt.subplot(211)
+plt.plot(time, A, marker='o', linestyle='-', color='b')
+plt.xlabel('Time')
+plt.ylabel('Activity')
+plt.title('Total Neuron Activity Over Time')
+plt.grid(True)
+
+# Second subplot: Spikes of each neuron over time
+plt.subplot(212)
+for time_index in range(spikes.shape[0]):
+    active_neurons = np.where(spikes[time_index, :] == 1)[0]
+    plt.scatter(np.full(active_neurons.shape, time_index), active_neurons, s=10)
 
 plt.xlabel('Time')
 plt.ylabel('Neurons')
 plt.title('Neuronal Activity Over Time')
-plt.legend(loc='best',fontsize=12)
+plt.grid(True)
+
+plt.tight_layout()
 plt.show()
